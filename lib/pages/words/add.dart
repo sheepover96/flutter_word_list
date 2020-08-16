@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:tutorial/database/database.dart' as db;
 
@@ -25,8 +27,22 @@ class Add extends StatefulWidget {
 }
 
 class _AddState extends State<Add> {
+  static const platform = const MethodChannel('dictionary_search');
   String _word = '';
   String tag = "One";
+
+  Future<void> _searchDictionary(String queryWord) async {
+    String cameraLevel;
+    try {
+      print("call");
+      await platform.invokeMethod(
+          'searchDictionary', <String, dynamic>{"queryWord": queryWord});
+    } on PlatformException catch (e) {
+      print(e);
+      cameraLevel = "Failed to get camera";
+    }
+    print("finish");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,6 +136,17 @@ class _AddState extends State<Add> {
                     final res = await db.DBClient.db.query("tutorial");
                   },
                   child: Text('リスト追加', style: TextStyle(color: Colors.white)),
+                ),
+              ),
+              Container(
+                width: double.infinity,
+                child: RaisedButton(
+                  color: Colors.blue,
+                  onPressed: () {
+                    print("search");
+                    this._searchDictionary(_word);
+                  },
+                  child: Text('検索', style: TextStyle(color: Colors.white)),
                 ),
               ),
               // Container(
